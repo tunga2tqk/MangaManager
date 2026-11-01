@@ -29,7 +29,6 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableWithoutFeedback,
@@ -37,6 +36,7 @@ import {
 } from 'react-native';
 import type { ScrollViewInstance } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { styles } from '@/styles/homeStyles';
 
 type Screen = 'main' | 'detail';
 
@@ -54,7 +54,7 @@ export default function HomeScreen() {
   const [screen, setScreen] = useState<Screen>('main');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // Lưu vị trí cuộn của danh sách lưới chính để phục hồi khi đóng màn hình chi tiết
+  // LÆ°u vá»‹ trÃ­ cuá»™n cá»§a danh sÃ¡ch lÆ°á»›i chÃ­nh Ä‘á»ƒ phá»¥c há»“i khi Ä‘Ã³ng mÃ n hÃ¬nh chi tiáº¿t
   const scrollOffsetRef = useRef(0);
   const gridScrollRef = useRef<ScrollViewInstance>(null);
 
@@ -93,8 +93,8 @@ export default function HomeScreen() {
   const [openGroupDropdownId, setOpenGroupDropdownId] = useState<string | null>(null);
   const [expandedGroupIds, setExpandedGroupIds] = useState<string[]>([]);
 
-  // Kích thước icon động dựa trên sizeMultiplier (1-10)
-  // sizeMultiplier = 5 là kích thước mặc định (100%)
+  // KÃ­ch thÆ°á»›c icon Ä‘á»™ng dá»±a trÃªn sizeMultiplier (1-10)
+  // sizeMultiplier = 5 lÃ  kÃ­ch thÆ°á»›c máº·c Ä‘á»‹nh (100%)
   const sizeScale = sizeMultiplier / 5;
   const dynamicSeriesCoverSize = Math.min(SERIES_COVER_SIZE * sizeScale, SERIES_COVER_MAX_SIZE);
   const cardWidth = getCellWidth(getGridColumns(sizeMultiplier));
@@ -116,7 +116,7 @@ export default function HomeScreen() {
     if (!selectedId) return;
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Cần quyền truy cập ảnh', 'Hãy cho phép ứng dụng truy cập thư viện ảnh để chọn ảnh.');
+      Alert.alert('Cáº§n quyá»n truy cáº­p áº£nh', 'HÃ£y cho phÃ©p á»©ng dá»¥ng truy cáº­p thÆ° viá»‡n áº£nh Ä‘á»ƒ chá»n áº£nh.');
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -131,7 +131,7 @@ export default function HomeScreen() {
       if (kind === 'cover') return { ...series, coverImageUri: storedUri };
       const gallery = series.galleryImageUris || [];
       if (gallery.length >= 4) {
-        Alert.alert('Đã đủ ảnh phụ', 'Mỗi bộ truyện chỉ được có tối đa 4 ảnh phụ.');
+        Alert.alert('ÄÃ£ Ä‘á»§ áº£nh phá»¥', 'Má»—i bá»™ truyá»‡n chá»‰ Ä‘Æ°á»£c cÃ³ tá»‘i Ä‘a 4 áº£nh phá»¥.');
         return series;
       }
       return { ...series, galleryImageUris: [...gallery, storedUri] };
@@ -152,16 +152,16 @@ export default function HomeScreen() {
     const series = seriesList.find((s) => s.id === id);
     if (!series) return;
     Alert.alert(
-      'Xác nhận xóa',
-      `Bạn có chắc muốn xóa bộ truyện "${series.name}"? Hành động này không thể hoàn tác.`,
+      'XÃ¡c nháº­n xÃ³a',
+      `Báº¡n cÃ³ cháº¯c muá»‘n xÃ³a bá»™ truyá»‡n "${series.name}"? HÃ nh Ä‘á»™ng nÃ y khÃ´ng thá»ƒ hoÃ n tÃ¡c.`,
       [
-        { text: 'Huỷ', style: 'cancel' },
+        { text: 'Huá»·', style: 'cancel' },
         {
-          text: 'Xóa',
+          text: 'XÃ³a',
           style: 'destructive',
           onPress: () => {
             setSeriesList((prev) => prev.filter((s) => s.id !== id));
-            addHistory('Deleted series', `Xóa bộ truyện "${series.name}"`, series);
+            addHistory('Deleted series', `XÃ³a bá»™ truyá»‡n "${series.name}"`, series);
             // if viewing deleted series, go back to main
             if (selectedId === id) {
               goToMainScreen();
@@ -177,7 +177,7 @@ export default function HomeScreen() {
     setSelectedId(null);
     setShowCreateModal(false);
     setShowFilterModal(false);
-    // Phục hồi vị trí cuộn sau khi overlay chi tiết được tháo khỏi giao diện
+    // Phá»¥c há»“i vá»‹ trÃ­ cuá»™n sau khi overlay chi tiáº¿t Ä‘Æ°á»£c thÃ¡o khá»i giao diá»‡n
     setTimeout(() => {
       gridScrollRef.current?.scrollTo({ y: scrollOffsetRef.current, animated: false });
     }, 50);
@@ -402,11 +402,11 @@ export default function HomeScreen() {
     const tags = Array.from(new Set([...(formSelectedTagChips || []), ...newTags, ...extraGroupTags]));
 
     if (!name) {
-      Alert.alert('Thiếu thông tin', 'Vui lòng nhập tên truyện.');
+      Alert.alert('Thiáº¿u thÃ´ng tin', 'Vui lÃ²ng nháº­p tÃªn truyá»‡n.');
       return;
     }
     if (isNaN(total) || total <= 0) {
-      Alert.alert('Thiếu thông tin', 'Vui lòng nhập tổng số tập hợp lệ.');
+      Alert.alert('Thiáº¿u thÃ´ng tin', 'Vui lÃ²ng nháº­p tá»•ng sá»‘ táº­p há»£p lá»‡.');
       return;
     }
 
@@ -448,7 +448,7 @@ export default function HomeScreen() {
             tags: tags.length ? tags : series.tags ?? [],
             chapters: newChapters,
           } as MangaSeries;
-          addHistory('Edited series', `Chỉnh sửa bộ truyện "${name}"`, updated);
+          addHistory('Edited series', `Chá»‰nh sá»­a bá»™ truyá»‡n "${name}"`, updated);
           return updated;
         }),
       );
@@ -470,7 +470,7 @@ export default function HomeScreen() {
       };
 
       setSeriesList((prev) => [newSeries, ...prev]);
-      addHistory('Created series', `Tạo bộ truyện "${name}"`, newSeries);
+      addHistory('Created series', `Táº¡o bá»™ truyá»‡n "${name}"`, newSeries);
     }
 
     resetCreateForm();
@@ -487,7 +487,7 @@ export default function HomeScreen() {
     );
   };
 
-  // Mở modal điều chỉnh số lượng tập (thường)
+  // Má»Ÿ modal Ä‘iá»u chá»‰nh sá»‘ lÆ°á»£ng táº­p (thÆ°á»ng)
   const handleOpenQuantityModalForChapter = (chapterNumber: number) => {
     if (!selectedId || !selectedSeries) return;
     const chapter = selectedSeries.chapters.find((ch) => ch.number === chapterNumber);
@@ -499,7 +499,7 @@ export default function HomeScreen() {
     setShowQuantityModal(true);
   };
 
-  // Mở modal điều chỉnh số lượng tập đặc biệt
+  // Má»Ÿ modal Ä‘iá»u chá»‰nh sá»‘ lÆ°á»£ng táº­p Ä‘áº·c biá»‡t
   const handleOpenQuantityModalForSpecial = (specialChapterId: string) => {
     if (!selectedId || !selectedSeries) return;
     const chapter = (selectedSeries.specialChapters || []).find((ch) => ch.id === specialChapterId);
@@ -511,20 +511,20 @@ export default function HomeScreen() {
     setShowQuantityModal(true);
   };
 
-  // Tiêu đề modal: tên bộ truyện + gạch ngang + "tập" + số tập
+  // TiÃªu Ä‘á» modal: tÃªn bá»™ truyá»‡n + gáº¡ch ngang + "táº­p" + sá»‘ táº­p
   const getModalTitleText = () => {
     if (!selectedSeries) return '';
     let chapterIdentifier = '';
     if (quantityTargetType === 'regular' && quantityChapterNumber !== null) {
-      chapterIdentifier = `tập ${quantityChapterNumber}`;
+      chapterIdentifier = `táº­p ${quantityChapterNumber}`;
     } else if (quantityTargetType === 'special' && quantitySpecialId !== null) {
       const sp = (selectedSeries.specialChapters || []).find((c) => c.id === quantitySpecialId);
-      chapterIdentifier = `tập ${sp?.name || ''}`;
+      chapterIdentifier = `táº­p ${sp?.name || ''}`;
     }
     return `${selectedSeries.name} - ${chapterIdentifier}`;
   };
 
-  // Xác nhận thay đổi số lượng từ modal
+  // XÃ¡c nháº­n thay Ä‘á»•i sá»‘ lÆ°á»£ng tá»« modal
   const handleConfirmQuantityModal = () => {
     if (!selectedId || !selectedSeries) return;
     const newCount = Math.max(0, Math.min(99, quantityValue));
@@ -547,10 +547,10 @@ export default function HomeScreen() {
           };
         }),
       );
-      addHistory('Updated chapter quantity', `Đổi số lượng tập ${quantityChapterNumber} thành ${newCount}`, selectedSeries ?? undefined);
+      addHistory('Updated chapter quantity', `Äá»•i sá»‘ lÆ°á»£ng táº­p ${quantityChapterNumber} thÃ nh ${newCount}`, selectedSeries ?? undefined);
     } else if (quantityTargetType === 'special' && quantitySpecialId !== null) {
       const sp = (selectedSeries.specialChapters || []).find((c) => c.id === quantitySpecialId);
-      const spName = sp?.name || 'tập đặc biệt';
+      const spName = sp?.name || 'táº­p Ä‘áº·c biá»‡t';
       setSeriesList((prev) =>
         prev.map((series) => {
           if (series.id !== selectedId) return series;
@@ -568,7 +568,7 @@ export default function HomeScreen() {
           };
         }),
       );
-      addHistory('Updated special chapter quantity', `Đổi số lượng ${spName} thành ${newCount}`, selectedSeries ?? undefined);
+      addHistory('Updated special chapter quantity', `Äá»•i sá»‘ lÆ°á»£ng ${spName} thÃ nh ${newCount}`, selectedSeries ?? undefined);
     }
 
     setShowQuantityModal(false);
@@ -595,10 +595,10 @@ export default function HomeScreen() {
         };
       }),
     );
-    addHistory('Toggled chapter', `Đổi trạng thái tập ${chapterNumber}`, selectedSeries ?? undefined);
+    addHistory('Toggled chapter', `Äá»•i tráº¡ng thÃ¡i táº­p ${chapterNumber}`, selectedSeries ?? undefined);
   };
 
-  // Nhấn giữ để thêm bản trùng (tăng số lượng bản đã có)
+  // Nháº¥n giá»¯ Ä‘á»ƒ thÃªm báº£n trÃ¹ng (tÄƒng sá»‘ lÆ°á»£ng báº£n Ä‘Ã£ cÃ³)
   const handleIncrementChapter = (chapterNumber: number) => {
 
     if (!selectedId) return;
@@ -619,7 +619,7 @@ export default function HomeScreen() {
         };
       }),
     );
-    addHistory('Added duplicate chapter', `Thêm bản trùng tập ${chapterNumber}`, selectedSeries ?? undefined);
+    addHistory('Added duplicate chapter', `ThÃªm báº£n trÃ¹ng táº­p ${chapterNumber}`, selectedSeries ?? undefined);
   };
 
   const handleToggleSpecialChapter = (specialChapterId: string) => {
@@ -642,10 +642,10 @@ export default function HomeScreen() {
         };
       }),
     );
-    addHistory('Toggled special chapter', 'Đổi trạng thái tập đặc biệt', selectedSeries ?? undefined);
+    addHistory('Toggled special chapter', 'Äá»•i tráº¡ng thÃ¡i táº­p Ä‘áº·c biá»‡t', selectedSeries ?? undefined);
   };
 
-  // Nhấn giữ để thêm bản trùng cho tập đặc biệt
+  // Nháº¥n giá»¯ Ä‘á»ƒ thÃªm báº£n trÃ¹ng cho táº­p Ä‘áº·c biá»‡t
   const handleIncrementSpecialChapter = (specialChapterId: string) => {
     if (!selectedId) return;
     setSeriesList((prev) =>
@@ -665,7 +665,7 @@ export default function HomeScreen() {
         };
       }),
     );
-    addHistory('Added duplicate special chapter', 'Thêm bản trùng tập đặc biệt', selectedSeries ?? undefined);
+    addHistory('Added duplicate special chapter', 'ThÃªm báº£n trÃ¹ng táº­p Ä‘áº·c biá»‡t', selectedSeries ?? undefined);
   };
 
   const handleAddSpecialChapters = () => {
@@ -675,7 +675,7 @@ export default function HomeScreen() {
       .map((name) => name.trim())
       .filter(Boolean);
     if (names.length === 0) {
-      Alert.alert('Thiếu thông tin', 'Vui lòng nhập ít nhất một tên tập đặc biệt.');
+      Alert.alert('Thiáº¿u thÃ´ng tin', 'Vui lÃ²ng nháº­p Ã­t nháº¥t má»™t tÃªn táº­p Ä‘áº·c biá»‡t.');
       return;
     }
 
@@ -694,7 +694,7 @@ export default function HomeScreen() {
         return { ...series, specialChapters: [...(series.specialChapters || []), ...added] };
       }),
     );
-    addHistory('Added special chapters', `Thêm ${names.length} tập đặc biệt`, selectedSeries ?? undefined);
+    addHistory('Added special chapters', `ThÃªm ${names.length} táº­p Ä‘áº·c biá»‡t`, selectedSeries ?? undefined);
     setSpecialChapterNames('');
     setShowSpecialChapterModal(false);
   };
@@ -708,7 +708,7 @@ export default function HomeScreen() {
           : series,
       ),
     );
-    addHistory('Deleted special chapter', 'Xóa tập đặc biệt', selectedSeries ?? undefined);
+    addHistory('Deleted special chapter', 'XÃ³a táº­p Ä‘áº·c biá»‡t', selectedSeries ?? undefined);
   };
 
   const openDetail = (id: string) => {
@@ -726,9 +726,9 @@ export default function HomeScreen() {
       return (
         <View style={styles.emptyState}>
           <Ionicons name="search-outline" size={64} color="#cbd5e1" />
-          <Text style={styles.emptyTitle}>Không tìm thấy kết quả</Text>
+          <Text style={styles.emptyTitle}>KhÃ´ng tÃ¬m tháº¥y káº¿t quáº£</Text>
           <Text style={styles.emptySubtitle}>
-            Không có bộ truyện hoặc tập nào khớp với “{searchQuery}”
+            KhÃ´ng cÃ³ bá»™ truyá»‡n hoáº·c táº­p nÃ o khá»›p vá»›i â€œ{searchQuery}â€
           </Text>
         </View>
       );
@@ -741,7 +741,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}>
         {matchingSeries.length > 0 && (
           <>
-            <Text style={styles.searchSectionTitle}>Bộ truyện ({matchingSeries.length})</Text>
+            <Text style={styles.searchSectionTitle}>Bá»™ truyá»‡n ({matchingSeries.length})</Text>
             <View style={styles.searchSeriesGrid}>
               {matchingSeries.map((item) => {
                 const owned = getOwnedCount(item);
@@ -757,7 +757,7 @@ export default function HomeScreen() {
                       )}
                     </View>
                     <Text style={[styles.searchSeriesName, { fontSize: baseFontSize }]} numberOfLines={2}>{item.name}</Text>
-                    <Text style={styles.searchSeriesMeta}>{owned}/{total} tập</Text>
+                    <Text style={styles.searchSeriesMeta}>{owned}/{total} táº­p</Text>
                     <View
                       style={[
                         styles.seriesStatusBar,
@@ -775,7 +775,7 @@ export default function HomeScreen() {
 
         {matchingSpecialChapters.length > 0 && (
           <>
-            <Text style={styles.searchSectionTitle}>Tập đặc biệt ({matchingSpecialChapters.length})</Text>
+            <Text style={styles.searchSectionTitle}>Táº­p Ä‘áº·c biá»‡t ({matchingSpecialChapters.length})</Text>
             <View style={styles.searchChapterList}>
               {matchingSpecialChapters.map(({ series, chapter }) => (
                 <Pressable
@@ -808,7 +808,7 @@ export default function HomeScreen() {
           <Ionicons name="search" size={18} color="#94a3b8" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Tìm kiếm tên truyện, tập đặc biệt..."
+            placeholder="TÃ¬m kiáº¿m tÃªn truyá»‡n, táº­p Ä‘áº·c biá»‡t..."
             placeholderTextColor="#94a3b8"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -851,9 +851,9 @@ export default function HomeScreen() {
       ) : filteredSeries.length === 0 ? (
         <View style={styles.emptyState}>
           <Ionicons name="book-outline" size={64} color="#cbd5e1" />
-          <Text style={styles.emptyTitle}>Chưa có bộ truyện nào</Text>
+          <Text style={styles.emptyTitle}>ChÆ°a cÃ³ bá»™ truyá»‡n nÃ o</Text>
           <Text style={styles.emptySubtitle}>
-            Nhấn “Thêm mới” để bắt đầu quản lý truyện tranh
+            Nháº¥n â€œThÃªm má»›iâ€ Ä‘á»ƒ báº¯t Ä‘áº§u quáº£n lÃ½ truyá»‡n tranh
           </Text>
         </View>
       ) : (
@@ -895,7 +895,7 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <Ionicons name="library-outline" size={28} color="#6366f1" />
         {screen === 'main' ? (
-          <Text style={styles.headerTitle}>Quản lý Truyện Tranh</Text>
+          <Text style={styles.headerTitle}>Quáº£n lÃ½ Truyá»‡n Tranh</Text>
         ) : (
           <Pressable
             style={styles.headerTitlePressable}
@@ -905,7 +905,7 @@ export default function HomeScreen() {
               }
             }}>
             <Text style={styles.headerTitleText} numberOfLines={1}>
-              {selectedSeries?.name ?? 'Chi tiết'}
+              {selectedSeries?.name ?? 'Chi tiáº¿t'}
             </Text>
           </Pressable>
         )}
@@ -920,7 +920,7 @@ export default function HomeScreen() {
         {saveError && (
           <View style={styles.errorIndicator}>
             <Ionicons name="alert-circle" size={16} color="#ef4444" style={{ marginRight: 4 }} />
-            <Text style={styles.errorText}>Lỗi lưu!</Text>
+            <Text style={styles.errorText}>Lá»—i lÆ°u!</Text>
           </View>
         )}
       </View>
@@ -952,7 +952,7 @@ export default function HomeScreen() {
         ) : null}
       </View>
 
-      {/* Modal tạo bộ truyện */}
+      {/* Modal táº¡o bá»™ truyá»‡n */}
       <Modal visible={showCreateModal} animationType="slide" transparent>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -961,7 +961,7 @@ export default function HomeScreen() {
         <View style={styles.modalOverlay}>
           <SafeAreaView edges={['bottom']} style={[styles.modalContent, styles.createModalContent]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{editingSeriesId ? 'Chỉnh sửa bộ truyện' : 'Tạo bộ truyện mới'}</Text>
+              <Text style={styles.modalTitle}>{editingSeriesId ? 'Chá»‰nh sá»­a bá»™ truyá»‡n' : 'Táº¡o bá»™ truyá»‡n má»›i'}</Text>
               <Pressable onPress={() => { setShowCreateModal(false); resetCreateForm(); }}>
                 <Ionicons name="close" size={26} color="#64748b" />
               </Pressable>
@@ -971,19 +971,19 @@ export default function HomeScreen() {
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={{ flexGrow: 1 }}>
-              <Text style={styles.label}>Tên truyện</Text>
+              <Text style={styles.label}>TÃªn truyá»‡n</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Nhập tên truyện..."
+                placeholder="Nháº­p tÃªn truyá»‡n..."
                 placeholderTextColor="#94a3b8"
                 value={formName}
                 onChangeText={setFormName}
               />
 
-              <Text style={styles.label}>Tổng số tập</Text>
+              <Text style={styles.label}>Tá»•ng sá»‘ táº­p</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Chỉ nhập số, ví dụ: 12"
+                placeholder="Chá»‰ nháº­p sá»‘, vÃ­ dá»¥: 12"
                 placeholderTextColor="#94a3b8"
                 value={formTotal}
                 onChangeText={(text) => setFormTotal(text.replace(/[^0-9]/g, ''))}
@@ -992,7 +992,7 @@ export default function HomeScreen() {
 
               {attributeGroups.length > 0 && (
                 <View style={styles.attributeGroupsSection}>
-                  <Text style={[styles.label, { marginTop: 12 }]}>Nhóm đặc điểm</Text>
+                  <Text style={[styles.label, { marginTop: 12 }]}>NhÃ³m Ä‘áº·c Ä‘iá»ƒm</Text>
                   {attributeGroups.map((group) => {
                     const isDropdownOpen = openGroupDropdownId === group.id;
                     const currentValue = formGroupValues[group.id] || '';
@@ -1003,7 +1003,7 @@ export default function HomeScreen() {
                         <View style={styles.groupInputRow}>
                           <TextInput
                             style={[styles.input, { flex: 1, marginBottom: 0 }]}
-                            placeholder={`Nhập ${group.name.toLowerCase()} (vd: ${group.tags[0] || 'mới'})...`}
+                            placeholder={`Nháº­p ${group.name.toLowerCase()} (vd: ${group.tags[0] || 'má»›i'})...`}
                             placeholderTextColor="#94a3b8"
                             value={currentValue}
                             onChangeText={(text) =>
@@ -1021,7 +1021,7 @@ export default function HomeScreen() {
                                 size={18}
                                 color="#4338ca"
                               />
-                              <Text style={styles.groupDropdownButtonText}>Chọn nhanh</Text>
+                              <Text style={styles.groupDropdownButtonText}>Chá»n nhanh</Text>
                             </Pressable>
                           )}
                         </View>
@@ -1064,7 +1064,7 @@ export default function HomeScreen() {
                 </View>
               )}
 
-              <Text style={styles.label}>Chọn Thẻ (chọn sẵn hoặc thêm mới)</Text>
+              <Text style={styles.label}>Chá»n Tháº» (chá»n sáºµn hoáº·c thÃªm má»›i)</Text>
               <View style={styles.tagGrid}>
                 {allTags.map((tag) => {
                   const selected = formSelectedTagChips.includes(tag);
@@ -1082,10 +1082,10 @@ export default function HomeScreen() {
                   );
                 })}
               </View>
-              <Text style={styles.label}>Thêm tag mới (cách nhau bằng dấu phẩy)</Text>
+              <Text style={styles.label}>ThÃªm tag má»›i (cÃ¡ch nhau báº±ng dáº¥u pháº©y)</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Nhập tag mới..."
+                placeholder="Nháº­p tag má»›i..."
                 placeholderTextColor="#94a3b8"
                 value={formNewTags}
                 onChangeText={setFormNewTags}
@@ -1094,7 +1094,7 @@ export default function HomeScreen() {
               {previewChapters.length > 0 && (
                 <View style={styles.previewSection}>
                   <Text style={styles.previewTitle}>
-                    Xem trước {previewChapters.length} tập · Nhấn để đổi trạng thái
+                    Xem trÆ°á»›c {previewChapters.length} táº­p Â· Nháº¥n Ä‘á»ƒ Ä‘á»•i tráº¡ng thÃ¡i
                   </Text>
                   <View style={styles.previewGrid}>
                     {previewChapters.map((ch) => (
@@ -1110,7 +1110,7 @@ export default function HomeScreen() {
 
               <Pressable style={styles.saveButton} onPress={handleSaveSeries}>
                 <Ionicons name="save-outline" size={22} color="#fff" />
-                <Text style={styles.saveButtonText}>Lưu bộ truyện</Text>
+                <Text style={styles.saveButtonText}>LÆ°u bá»™ truyá»‡n</Text>
               </Pressable>
             </ScrollView>
           </SafeAreaView>
@@ -1119,14 +1119,14 @@ export default function HomeScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* Modal lọc */}
+      {/* Modal lá»c */}
       <Modal visible={showFilterModal} animationType="slide" transparent={false}>
         <SafeAreaView style={styles.fullscreenModal}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Bộ lọc</Text>
+            <Text style={styles.modalTitle}>Bá»™ lá»c</Text>
             <Pressable
               onPress={() => setShowFilterModal(false)}
-              accessibilityLabel="Đóng bộ lọc"
+              accessibilityLabel="ÄÃ³ng bá»™ lá»c"
               style={{ minWidth: 48, minHeight: 48, padding: 10, alignItems: 'center', justifyContent: 'center' }}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               <Ionicons name="close" size={28} color="#64748b" />
@@ -1144,7 +1144,7 @@ export default function HomeScreen() {
                 onPress={() => setShowMissingPanel((s) => !s)}>
                 <Text
                   style={[styles.filterOptionText, showMissingPanel && styles.filterOptionTextActive]}>
-                  Còn thiếu
+                  CÃ²n thiáº¿u
                 </Text>
               </Pressable>
 
@@ -1162,7 +1162,7 @@ export default function HomeScreen() {
 
               <Pressable
                 style={[styles.filterOption, { width: 44, paddingHorizontal: 0, alignItems: 'center', justifyContent: 'center' }]}
-                accessibilityLabel="Đặt lại bộ lọc"
+                accessibilityLabel="Äáº·t láº¡i bá»™ lá»c"
                 onPress={() => {
                   setSelectedFilterTags([]);
                   setTagFilter('all');
@@ -1181,7 +1181,7 @@ export default function HomeScreen() {
                 const hasSelected = selectedCount > 0;
 
                 if (!isExpanded) {
-                  // Collapsed state: Button [Tên nhóm +]
+                  // Collapsed state: Button [TÃªn nhÃ³m +]
                   return (
                     <Pressable
                       key={group.id}
@@ -1221,7 +1221,7 @@ export default function HomeScreen() {
                               setExpandedGroupIds((prev) => prev.filter((id) => id !== group.id))
                             }>
                             <Ionicons name="chevron-up-outline" size={14} color="#0284c7" />
-                            <Text style={styles.filterGroupCollapseText}>Thu gọn</Text>
+                            <Text style={styles.filterGroupCollapseText}>Thu gá»n</Text>
                           </Pressable>
                           <Pressable
                             style={styles.filterGroupClearBtn}
@@ -1232,14 +1232,14 @@ export default function HomeScreen() {
                               setExpandedGroupIds((prev) => prev.filter((id) => id !== group.id));
                             }}>
                             <Ionicons name="trash-outline" size={14} color="#ef4444" />
-                            <Text style={styles.filterGroupClearText}>Xóa</Text>
+                            <Text style={styles.filterGroupClearText}>XÃ³a</Text>
                           </Pressable>
                         </View>
                       </View>
 
                       <View style={styles.tagGrid}>
                         {group.tags.length === 0 && (
-                          <Text style={styles.filterOptionText}>Chưa có tag trong nhóm này</Text>
+                          <Text style={styles.filterOptionText}>ChÆ°a cÃ³ tag trong nhÃ³m nÃ y</Text>
                         )}
                         {group.tags.map((tag) => {
                           const selected = selectedFilterTags.includes(tag);
@@ -1275,7 +1275,7 @@ export default function HomeScreen() {
 
               return (
                 <View style={{ marginTop: 12 }}>
-                  <Text style={styles.ungroupedTagsTitle}>Thẻ khác</Text>
+                  <Text style={styles.ungroupedTagsTitle}>Tháº» khÃ¡c</Text>
                   <View style={styles.tagGrid}>
                     {ungroupedTags.map((tag) => {
                       const selected = selectedFilterTags.includes(tag);
@@ -1352,7 +1352,7 @@ export default function HomeScreen() {
                         </View>
                       );
                     });
-                    if (rows.length === 0) return <Text style={styles.emptySubtitle}>Không có bộ truyện thiếu theo bộ lọc</Text>;
+                    if (rows.length === 0) return <Text style={styles.emptySubtitle}>KhÃ´ng cÃ³ bá»™ truyá»‡n thiáº¿u theo bá»™ lá»c</Text>;
                     return rows;
                   })()}
                 </View>
@@ -1390,7 +1390,7 @@ export default function HomeScreen() {
                         </View>
                       );
                     });
-                    if (rows.length === 0) return <Text style={styles.emptySubtitle}>Không có chương theo bộ lọc</Text>;
+                    if (rows.length === 0) return <Text style={styles.emptySubtitle}>KhÃ´ng cÃ³ chÆ°Æ¡ng theo bá»™ lá»c</Text>;
                     return rows;
                   })()}
                 </View>
@@ -1411,7 +1411,7 @@ export default function HomeScreen() {
             <View style={styles.modalOverlay}>
               <View style={styles.modalContent}>
                 <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>Thêm tập đặc biệt</Text>
+                  <Text style={styles.modalTitle}>ThÃªm táº­p Ä‘áº·c biá»‡t</Text>
                   <Pressable onPress={() => { setShowSpecialChapterModal(false); setSpecialChapterNames(''); }}>
                     <Ionicons name="close" size={26} color="#64748b" />
                   </Pressable>
@@ -1421,10 +1421,10 @@ export default function HomeScreen() {
                   showsVerticalScrollIndicator={false}
                   keyboardShouldPersistTaps="handled"
                   contentContainerStyle={{ flexGrow: 1 }}>
-                  <Text style={styles.label}>Tên tập</Text>
+                  <Text style={styles.label}>TÃªn táº­p</Text>
                   <TextInput
                     style={[styles.input, styles.multilineInput]}
-                    placeholder={'Mỗi dòng một tập, ví dụ:\nNgoại truyện 1\nTừ điển Pokemon\nDoremon movie'}
+                    placeholder={'Má»—i dÃ²ng má»™t táº­p, vÃ­ dá»¥:\nNgoáº¡i truyá»‡n 1\nTá»« Ä‘iá»ƒn Pokemon\nDoremon movie'}
                     placeholderTextColor="#94a3b8"
                     value={specialChapterNames}
                     onChangeText={setSpecialChapterNames}
@@ -1433,7 +1433,7 @@ export default function HomeScreen() {
                   />
                   <Pressable style={styles.saveButton} onPress={handleAddSpecialChapters}>
                     <Ionicons name="add-circle-outline" size={22} color="#fff" />
-                    <Text style={styles.saveButtonText}>Thêm tập</Text>
+                    <Text style={styles.saveButtonText}>ThÃªm táº­p</Text>
                   </Pressable>
                 </ScrollView>
               </View>
@@ -1442,12 +1442,12 @@ export default function HomeScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* Modal ảnh */}
+      {/* Modal áº£nh */}
       <Modal visible={showGalleryModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Ảnh bộ truyện</Text>
+              <Text style={styles.modalTitle}>áº¢nh bá»™ truyá»‡n</Text>
               <Pressable onPress={() => setShowGalleryModal(false)}>
                 <Ionicons name="close" size={26} color="#64748b" />
               </Pressable>
@@ -1458,26 +1458,26 @@ export default function HomeScreen() {
             ) : (
               <View style={styles.emptyImagePreview}>
                 <Ionicons name="image-outline" size={48} color="#cbd5e1" />
-                <Text style={styles.emptySubtitle}>Chưa có ảnh</Text>
+                <Text style={styles.emptySubtitle}>ChÆ°a cÃ³ áº£nh</Text>
               </View>
             )}
 
-            <Text style={styles.label}>Ảnh chính (tối đa 1)</Text>
+            <Text style={styles.label}>áº¢nh chÃ­nh (tá»‘i Ä‘a 1)</Text>
             <View style={styles.imageActionsRow}>
               <Pressable style={styles.imageActionButton} onPress={() => pickSeriesImage('cover')}>
                 <Ionicons name="image-outline" size={18} color="#fff" />
-                <Text style={styles.imageActionText}>{selectedSeries?.coverImageUri ? 'Thay ảnh' : 'Thêm ảnh'}</Text>
+                <Text style={styles.imageActionText}>{selectedSeries?.coverImageUri ? 'Thay áº£nh' : 'ThÃªm áº£nh'}</Text>
               </Pressable>
               {selectedSeries?.coverImageUri && (
                 <Pressable style={styles.imageRemoveButton} onPress={() => removeSeriesImage('cover')}>
                   <Ionicons name="trash-outline" size={18} color="#fff" />
-                  <Text style={styles.imageRemoveText}>Xóa</Text>
+                  <Text style={styles.imageRemoveText}>XÃ³a</Text>
                 </Pressable>
               )}
             </View>
 
             <View style={styles.galleryTitleRow}>
-              <Text style={styles.label}>Ảnh phụ ({selectedSeries?.galleryImageUris?.length || 0}/4)</Text>
+              <Text style={styles.label}>áº¢nh phá»¥ ({selectedSeries?.galleryImageUris?.length || 0}/4)</Text>
               <Pressable
                 style={[
                   styles.imageActionButton,
@@ -1486,7 +1486,7 @@ export default function HomeScreen() {
                 disabled={(selectedSeries?.galleryImageUris?.length || 0) >= 4}
                 onPress={() => pickSeriesImage('gallery')}>
                 <Ionicons name="add" size={18} color="#fff" />
-                <Text style={styles.imageActionText}>Thêm ảnh phụ</Text>
+                <Text style={styles.imageActionText}>ThÃªm áº£nh phá»¥</Text>
               </Pressable>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.galleryRow}>
@@ -1499,14 +1499,14 @@ export default function HomeScreen() {
                 </Pressable>
               ))}
             </ScrollView>
-            <Text style={styles.backupHint}>Ảnh được lưu cục bộ trên thiết bị và không gửi lên Google Sheets.</Text>
+            <Text style={styles.backupHint}>áº¢nh Ä‘Æ°á»£c lÆ°u cá»¥c bá»™ trÃªn thiáº¿t bá»‹ vÃ  khÃ´ng gá»­i lÃªn Google Sheets.</Text>
           </View>
         </View>
       </Modal>
 
 
 
-      {/* Modal chỉnh tags cho tập */}
+      {/* Modal chá»‰nh tags cho táº­p */}
       <Modal visible={showEditChapterModal} animationType="slide" transparent>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -1515,7 +1515,7 @@ export default function HomeScreen() {
             <View style={styles.modalOverlay}>
               <View style={styles.modalContent}>
                 <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>Chỉnh tags tập {editingChapter?.number}</Text>
+                  <Text style={styles.modalTitle}>Chá»‰nh tags táº­p {editingChapter?.number}</Text>
                   <Pressable onPress={() => setShowEditChapterModal(false)}>
                     <Ionicons name="close" size={26} color="#64748b" />
                   </Pressable>
@@ -1525,10 +1525,10 @@ export default function HomeScreen() {
                   showsVerticalScrollIndicator={false}
                   keyboardShouldPersistTaps="handled"
                   contentContainerStyle={{ flexGrow: 1 }}>
-                  <Text style={styles.label}>Tags (cách nhau bằng dấu phẩy)</Text>
+                  <Text style={styles.label}>Tags (cÃ¡ch nhau báº±ng dáº¥u pháº©y)</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Ví dụ: Fanmade, Translated..."
+                    placeholder="VÃ­ dá»¥: Fanmade, Translated..."
                     placeholderTextColor="#94a3b8"
                     value={editingChapterTags}
                     onChangeText={setEditingChapterTags}
@@ -1552,13 +1552,13 @@ export default function HomeScreen() {
                           };
                         }),
                       );
-                      addHistory('Edited chapter tags', `Chỉnh tags tập ${editingChapter.number}`, selectedSeries ?? undefined);
+                      addHistory('Edited chapter tags', `Chá»‰nh tags táº­p ${editingChapter.number}`, selectedSeries ?? undefined);
                       setShowEditChapterModal(false);
                       setEditingChapter(null);
                       setEditingChapterTags('');
                     }}>
                     <Ionicons name="save-outline" size={22} color="#fff" />
-                    <Text style={styles.saveButtonText}>Lưu tags</Text>
+                    <Text style={styles.saveButtonText}>LÆ°u tags</Text>
                   </Pressable>
                 </ScrollView>
               </View>
@@ -1567,7 +1567,7 @@ export default function HomeScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* Modal điều chỉnh số lượng tập */}
+      {/* Modal Ä‘iá»u chá»‰nh sá»‘ lÆ°á»£ng táº­p */}
       <Modal visible={showQuantityModal} animationType="slide" transparent onRequestClose={() => setShowQuantityModal(false)}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -1579,12 +1579,12 @@ export default function HomeScreen() {
                   showsVerticalScrollIndicator={false}
                   keyboardShouldPersistTaps="handled"
                   contentContainerStyle={{ flexGrow: 1 }}>
-                  {/* Dòng 1: Tên bộ truyện + gạch ngang + "tập" + số tập */}
+                  {/* DÃ²ng 1: TÃªn bá»™ truyá»‡n + gáº¡ch ngang + "táº­p" + sá»‘ táº­p */}
                   <View style={styles.quantityModalHeader}>
                     <Text style={styles.quantityModalTitle}>{getModalTitleText()}</Text>
                   </View>
 
-                  {/* Dòng 2: Ô hiển thị số lượng tập ở giữa, bên trái là dấu trừ, bên phải là dấu cộng (0-99) */}
+                  {/* DÃ²ng 2: Ã” hiá»ƒn thá»‹ sá»‘ lÆ°á»£ng táº­p á»Ÿ giá»¯a, bÃªn trÃ¡i lÃ  dáº¥u trá»«, bÃªn pháº£i lÃ  dáº¥u cá»™ng (0-99) */}
                   <View style={styles.quantityControlRow}>
                     <Pressable
                       style={[styles.quantityStepBtn, quantityValue <= 0 && styles.quantityStepBtnDisabled]}
@@ -1620,13 +1620,13 @@ export default function HomeScreen() {
                     </Pressable>
                   </View>
 
-                  {/* Dòng 3: Hủy và Xác nhận */}
+                  {/* DÃ²ng 3: Há»§y vÃ  XÃ¡c nháº­n */}
                   <View style={styles.quantityActionRow}>
                     <Pressable style={styles.quantityCancelBtn} onPress={() => setShowQuantityModal(false)}>
-                      <Text style={styles.quantityCancelBtnText}>Hủy</Text>
+                      <Text style={styles.quantityCancelBtnText}>Há»§y</Text>
                     </Pressable>
                     <Pressable style={styles.quantityConfirmBtn} onPress={handleConfirmQuantityModal}>
-                      <Text style={styles.quantityConfirmBtnText}>Xác nhận</Text>
+                      <Text style={styles.quantityConfirmBtnText}>XÃ¡c nháº­n</Text>
                     </Pressable>
                   </View>
                 </ScrollView>
@@ -1639,1102 +1639,3 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  body: {
-    flex: 1,
-    position: 'relative',
-  },
-  detailOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#f8fafc',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingHorizontal: GRID_PADDING,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-    backgroundColor: '#fff',
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1e293b',
-  },
-  headerTitlePressable: {
-    flex: 1,
-  },
-  headerTitleText: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1e293b',
-  },
-  headerAddButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#6366f1',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  errorIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    backgroundColor: '#fee2e2',
-    borderRadius: 8,
-  },
-  errorText: {
-    fontSize: 12,
-    color: '#ef4444',
-    fontWeight: '600',
-  },
-  toolbar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: GRID_PADDING,
-    paddingVertical: 12,
-    backgroundColor: '#fff',
-  },
-  searchBox: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#f1f5f9',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    height: 42,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    color: '#1e293b',
-    paddingVertical: 0,
-  },
-  filterButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 10,
-    backgroundColor: '#f1f5f9',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  filterButtonActive: {
-    backgroundColor: '#eef2ff',
-    borderWidth: 1,
-    borderColor: '#6366f1',
-  },
-  activeFilters: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    paddingHorizontal: GRID_PADDING,
-    paddingBottom: 8,
-    backgroundColor: '#fff',
-  },
-  filterChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#eef2ff',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  filterChipText: {
-    fontSize: 12,
-    color: '#4338ca',
-    fontWeight: '600',
-  },
-  gridList: {
-    flex: 1,
-  },
-  seriesGridContent: {
-    padding: GRID_PADDING,
-    paddingBottom: 24,
-  },
-  seriesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: GRID_GAP,
-  },
-  seriesCoverImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 8,
-  },
-  seriesStatusBar: {
-    height: 6,
-    borderRadius: 4,
-    backgroundColor: '#e2e8f0',
-  },
-  emptyState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#64748b',
-    marginTop: 12,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: '#94a3b8',
-    textAlign: 'center',
-    marginTop: 6,
-  },
-
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    maxHeight: '85%',
-  },
-  createModalContent: {
-    // Khoảng trắng dưới cùng để nút "Lưu bộ truyện" không bị thanh điều hướng che khuất.
-    // SafeAreaView (edges bottom) sẽ cộng thêm inset bottom của hệ thống vào giá trị này.
-    paddingBottom: 24,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1e293b',
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#475569',
-    marginBottom: 6,
-    marginTop: 12,
-  },
-  input: {
-    backgroundColor: '#f8fafc',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 15,
-    color: '#1e293b',
-  },
-  multilineInput: {
-    minHeight: 100,
-  },
-  tagGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  tagChip: {
-    backgroundColor: '#f1f5f9',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    minHeight: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  tagChipActive: {
-    backgroundColor: '#eef2ff',
-    borderColor: '#6366f1',
-  },
-  tagChipText: {
-    fontSize: 13,
-    color: '#475569',
-    fontWeight: '600',
-  },
-  tagChipTextActive: {
-    color: '#4338ca',
-  },
-  previewSection: {
-    marginTop: 16,
-  },
-  previewTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#475569',
-    marginBottom: 8,
-  },
-  previewGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  saveButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: '#6366f1',
-    borderRadius: 12,
-    paddingVertical: 14,
-    marginTop: 20,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  fullscreenModal: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  fullscreenModalContent: {
-    padding: GRID_PADDING,
-  },
-  filterOption: {
-    backgroundColor: '#f1f5f9',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    minHeight: 44,
-    justifyContent: 'center',
-  },
-  filterOptionActive: {
-    backgroundColor: '#eef2ff',
-    borderWidth: 1,
-    borderColor: '#6366f1',
-  },
-  filterOptionText: {
-    fontSize: 14,
-    color: '#475569',
-    fontWeight: '600',
-  },
-  filterOptionTextActive: {
-    color: '#4338ca',
-  },
-  filterCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingTop: 12,
-    paddingBottom: 8,
-    paddingHorizontal: 8,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-    position: 'relative',
-  },
-  filterCardTitleContainer: {
-    position: 'absolute',
-    top: -10,
-    left: 12,
-    backgroundColor: '#f8fafc',
-    paddingHorizontal: 6,
-    zIndex: 10,
-    maxWidth: '85%',
-  },
-  filterCardTitle: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#1e293b',
-  },
-  filterCardChapters: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 4,
-  },
-  largePreviewImage: {
-    width: '100%',
-    height: 220,
-    borderRadius: 12,
-    backgroundColor: '#f1f5f9',
-  },
-  emptyImagePreview: {
-    width: '100%',
-    height: 220,
-    borderRadius: 12,
-    backgroundColor: '#f1f5f9',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  imageActionsRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 8,
-  },
-  imageActionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: '#6366f1',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  imageActionButtonDisabled: {
-    opacity: 0.5,
-  },
-  imageActionText: {
-    fontSize: 13,
-    color: '#fff',
-    fontWeight: '700',
-  },
-  imageRemoveButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: '#dc2626',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  imageRemoveText: {
-    fontSize: 13,
-    color: '#fff',
-    fontWeight: '700',
-  },
-  galleryTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 12,
-  },
-  galleryRow: {
-    gap: 8,
-    paddingVertical: 8,
-  },
-  galleryImageWrap: {
-    position: 'relative',
-  },
-  galleryImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    backgroundColor: '#f1f5f9',
-  },
-  galleryRemoveButton: {
-    position: 'absolute',
-    top: -6,
-    right: -6,
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    borderRadius: 12,
-    padding: 2,
-    borderWidth: 1,
-    borderColor: '#fca5a5',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  backupHint: {
-    fontSize: 12,
-    color: '#94a3b8',
-    marginTop: 4,
-    marginBottom: 8,
-  },
-  historyRow: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  historyTime: {
-    fontSize: 11,
-    color: '#94a3b8',
-    marginBottom: 4,
-  },
-  historyText: {
-    fontSize: 14,
-    color: '#1e293b',
-  },
-  restoreButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: '#0ea5e9',
-    borderRadius: 12,
-    paddingVertical: 14,
-    marginTop: 8,
-  },
-  restoreButtonDisabled: {
-    opacity: 0.6,
-  },
-  backupStatus: {
-    fontSize: 13,
-    color: '#6366f1',
-    fontWeight: '600',
-    marginTop: 8,
-  },
-  exportRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 8,
-  },
-  exportButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: '#eef2ff',
-    borderRadius: 10,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: '#c7d2fe',
-  },
-  exportButtonText: {
-    fontSize: 13,
-    color: '#4338ca',
-    fontWeight: '600',
-  },
-  searchResultsContent: {
-    padding: GRID_PADDING,
-    paddingBottom: 100,
-  },
-  searchSectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1e293b',
-    marginBottom: 12,
-    marginTop: 8,
-  },
-  searchSeriesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: GRID_GAP,
-    marginBottom: 16,
-  },
-  searchSeriesCard: {
-    width: CELL_SIZE,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  searchSeriesIconWrap: {
-    width: SERIES_COVER_SIZE,
-    height: SERIES_COVER_SIZE,
-    alignSelf: 'center',
-    borderRadius: 8,
-    backgroundColor: '#eef2ff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-    overflow: 'hidden',
-  },
-  searchSeriesName: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#1e293b',
-    marginBottom: 4,
-    minHeight: 34,
-  },
-  searchSeriesMeta: {
-    fontSize: 12,
-    color: '#64748b',
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  searchChapterList: {
-    gap: 8,
-  },
-  searchChapterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  searchChapterRowOwned: {
-    backgroundColor: '#f0fdf4',
-    borderColor: '#bbf7d0',
-  },
-  searchChapterName: {
-    fontSize: 15,
-    color: '#1e293b',
-    fontWeight: '700',
-  },
-  searchChapterSeries: {
-    fontSize: 12,
-    color: '#64748b',
-    marginTop: 2,
-  },
-  sizeSliderRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 8,
-  },
-  sizeOption: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: '#f1f5f9',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  sizeOptionActive: {
-    backgroundColor: '#eef2ff',
-    borderColor: '#6366f1',
-  },
-  sizeOptionText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#475569',
-  },
-  sizeOptionTextActive: {
-    color: '#4338ca',
-  },
-  sizePreviewRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 32,
-    marginTop: 20,
-    paddingVertical: 16,
-    backgroundColor: '#f8fafc',
-    borderRadius: 12,
-  },
-  sizePreviewItem: {
-    alignItems: 'center',
-    gap: 8,
-  },
-  sizePreviewBox: {
-    borderRadius: 8,
-    backgroundColor: '#eef2ff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  sizePreviewLabel: {
-    fontSize: 12,
-    color: '#64748b',
-    fontWeight: '600',
-  },
-  quantityModalHeader: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  quantityModalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1e293b',
-    textAlign: 'center',
-  },
-  quantityControlRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 16,
-    marginVertical: 16,
-  },
-  quantityStepBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#eef2ff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#c7d2fe',
-  },
-  quantityStepBtnDisabled: {
-    backgroundColor: '#f1f5f9',
-    borderColor: '#e2e8f0',
-  },
-  quantityDisplayBox: {
-    width: 90,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: '#f8fafc',
-    borderWidth: 1,
-    borderColor: '#cbd5e1',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  quantityDisplayText: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#1e293b',
-    textAlign: 'center',
-    width: '100%',
-    paddingVertical: 0,
-  },
-  quantityActionRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-  },
-  quantityCancelBtn: {
-    flex: 1,
-    backgroundColor: '#f1f5f9',
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  quantityCancelBtnText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#64748b',
-  },
-  quantityConfirmBtn: {
-    flex: 1,
-    backgroundColor: '#6366f1',
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  quantityConfirmBtnText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  attributeGroupsSection: {
-    marginTop: 4,
-    marginBottom: 8,
-  },
-  groupInputContainer: {
-    marginBottom: 10,
-  },
-  groupInputLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#64748b',
-    marginBottom: 4,
-  },
-  groupInputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  groupDropdownButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#eef2ff',
-    borderWidth: 1,
-    borderColor: '#c7d2fe',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  groupDropdownButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#4338ca',
-  },
-  groupDropdownMenu: {
-    marginTop: 6,
-    backgroundColor: '#f8fafc',
-    borderRadius: 8,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  groupDropdownScroll: {
-    flexDirection: 'row',
-    gap: 6,
-  },
-  groupDropdownChip: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#cbd5e1',
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  groupDropdownChipSelected: {
-    backgroundColor: '#eef2ff',
-    borderColor: '#6366f1',
-  },
-  groupDropdownChipText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#475569',
-  },
-  groupDropdownChipTextSelected: {
-    color: '#4338ca',
-  },
-  attributeGroupsFilterSection: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 10,
-  },
-  filterGroupButton: {
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    minHeight: 44,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  filterGroupButtonDefault: {
-    backgroundColor: '#eff6ff',
-    borderColor: '#2563eb',
-  },
-  filterGroupButtonSelected: {
-    backgroundColor: '#f0fdf4',
-    borderColor: '#16a34a',
-  },
-  filterGroupButtonText: {
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  filterGroupButtonTextDefault: {
-    color: '#1d4ed8',
-  },
-  filterGroupButtonTextSelected: {
-    color: '#15803d',
-  },
-  filterGroupExpandedBox: {
-    width: '100%',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 6,
-  },
-  filterGroupExpandedBoxDefault: {
-    backgroundColor: '#f0f9ff',
-    borderWidth: 1.5,
-    borderColor: '#0284c7',
-  },
-  filterGroupExpandedBoxSelected: {
-    backgroundColor: '#f0fdf4',
-    borderWidth: 2,
-    borderColor: '#22c55e',
-  },
-  filterGroupHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-    paddingBottom: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.06)',
-  },
-  filterGroupName: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#1e293b',
-  },
-  filterGroupActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  filterGroupCollapseBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#e0f2fe',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    minHeight: 44,
-    justifyContent: 'center',
-    borderRadius: 6,
-  },
-  filterGroupCollapseText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#0284c7',
-  },
-  filterGroupClearBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#fee2e2',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    minHeight: 44,
-    justifyContent: 'center',
-    borderRadius: 6,
-  },
-  filterGroupClearText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#dc2626',
-  },
-  ungroupedTagsTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#64748b',
-    marginBottom: 8,
-  },
-  addGroupRow: {
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'center',
-    marginBottom: 12,
-    marginTop: 4,
-  },
-  addGroupBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#6366f1',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 11,
-  },
-  addGroupBtnText: {
-    color: '#fff',
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  groupList: {
-    gap: 10,
-    marginBottom: 12,
-  },
-  groupCard: {
-    backgroundColor: '#f8fafc',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    padding: 12,
-  },
-  groupCardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  groupCardTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#1e293b',
-  },
-  groupCardDeleteBtn: {
-    padding: 4,
-  },
-  groupTagsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginBottom: 10,
-  },
-  groupTagChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#eef2ff',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  groupTagChipText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#4338ca',
-  },
-  addTagToGroupRow: {
-    flexDirection: 'row',
-    gap: 6,
-    alignItems: 'center',
-  },
-  addTagToGroupBtn: {
-    backgroundColor: '#4338ca',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 9,
-  },
-  addTagToGroupBtnText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  accountSection: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  accountCard: {
-    backgroundColor: '#f8fafc',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#cbd5e1',
-    padding: 12,
-    marginTop: 8,
-  },
-  accountHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  userAvatarImage: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-  },
-  userAvatarPlaceholder: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#eef2ff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#c7d2fe',
-  },
-  accountInfo: {
-    flex: 1,
-  },
-  accountName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#1e293b',
-  },
-  accountEmail: {
-    fontSize: 13,
-    color: '#64748b',
-    marginTop: 2,
-  },
-  activeStatusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 4,
-  },
-  statusDotActive: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#22c55e',
-  },
-  activeStatusText: {
-    fontSize: 12,
-    color: '#16a34a',
-    fontWeight: '600',
-  },
-  syncStatusText: {
-    fontSize: 12,
-    color: '#6366f1',
-    fontWeight: '600',
-    marginTop: 8,
-  },
-  accountActionRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 12,
-  },
-  syncUserBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: '#4338ca',
-    borderRadius: 8,
-    paddingVertical: 8,
-  },
-  syncUserBtnText: {
-    color: '#fff',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  signOutBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: '#fee2e2',
-    borderRadius: 8,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#fca5a5',
-  },
-  signOutBtnText: {
-    color: '#dc2626',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  loginCard: {
-    backgroundColor: '#f8fafc',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    padding: 12,
-    marginTop: 8,
-  },
-  clientIdContainer: {
-    marginTop: 8,
-  },
-  saveClientBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: '#eef2ff',
-    borderWidth: 1,
-    borderColor: '#c7d2fe',
-    borderRadius: 8,
-    paddingVertical: 8,
-    marginTop: 6,
-  },
-  saveClientBtnText: {
-    fontSize: 12,
-    color: '#4338ca',
-    fontWeight: '700',
-  },
-});
