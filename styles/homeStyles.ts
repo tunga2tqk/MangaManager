@@ -175,8 +175,8 @@ export const styles = StyleSheet.create({
     maxHeight: '85%',
   },
   createModalContent: {
-    // Khoáº£ng tráº¯ng dÆ°á»›i cÃ¹ng Ä‘á»ƒ nÃºt "LÆ°u bá»™ truyá»‡n" khÃ´ng bá»‹ thanh Ä‘iá»u hÆ°á»›ng che khuáº¥t.
-    // SafeAreaView (edges bottom) sáº½ cá»™ng thÃªm inset bottom cá»§a há»‡ thá»‘ng vÃ o giÃ¡ trá»‹ nÃ y.
+    // Khoảng trắng dưới cùng để nút "Lưu bộ truyện" không bị thanh điều hướng che khuất.
+    // SafeAreaView (edges bottom) sẽ cộng thêm inset bottom của hệ thống vào giá trị này.
     paddingBottom: 24,
   },
   modalHeader: {

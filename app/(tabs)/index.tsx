@@ -54,7 +54,7 @@ export default function HomeScreen() {
   const [screen, setScreen] = useState<Screen>('main');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // LÆ°u vá»‹ trÃ­ cuá»™n cá»§a danh sÃ¡ch lÆ°á»›i chÃ­nh Ä‘á»ƒ phá»¥c há»“i khi Ä‘Ã³ng mÃ n hÃ¬nh chi tiáº¿t
+  // Lưu vị trí cuộn của danh sách lưới chính để phục hồi khi đóng màn hình chi tiết
   const scrollOffsetRef = useRef(0);
   const gridScrollRef = useRef<ScrollViewInstance>(null);
 
@@ -93,8 +93,8 @@ export default function HomeScreen() {
   const [openGroupDropdownId, setOpenGroupDropdownId] = useState<string | null>(null);
   const [expandedGroupIds, setExpandedGroupIds] = useState<string[]>([]);
 
-  // KÃ­ch thÆ°á»›c icon Ä‘á»™ng dá»±a trÃªn sizeMultiplier (1-10)
-  // sizeMultiplier = 5 lÃ  kÃ­ch thÆ°á»›c máº·c Ä‘á»‹nh (100%)
+  // Kích thước icon động dựa trên sizeMultiplier (1-10)
+  // sizeMultiplier = 5 là kích thước mặc định (100%)
   const sizeScale = sizeMultiplier / 5;
   const dynamicSeriesCoverSize = Math.min(SERIES_COVER_SIZE * sizeScale, SERIES_COVER_MAX_SIZE);
   const cardWidth = getCellWidth(getGridColumns(sizeMultiplier));
@@ -116,7 +116,7 @@ export default function HomeScreen() {
     if (!selectedId) return;
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Cáº§n quyá»n truy cáº­p áº£nh', 'HÃ£y cho phÃ©p á»©ng dá»¥ng truy cáº­p thÆ° viá»‡n áº£nh Ä‘á»ƒ chá»n áº£nh.');
+      Alert.alert('Cần quyền truy cập ảnh', 'Hãy cho phép ứng dụng truy cập thư viện ảnh để chọn ảnh.');
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -131,7 +131,7 @@ export default function HomeScreen() {
       if (kind === 'cover') return { ...series, coverImageUri: storedUri };
       const gallery = series.galleryImageUris || [];
       if (gallery.length >= 4) {
-        Alert.alert('ÄÃ£ Ä‘á»§ áº£nh phá»¥', 'Má»—i bá»™ truyá»‡n chá»‰ Ä‘Æ°á»£c cÃ³ tá»‘i Ä‘a 4 áº£nh phá»¥.');
+        Alert.alert('Đã đủ ảnh phụ', 'Mỗi bộ truyện chỉ được có tối đa 4 ảnh phụ.');
         return series;
       }
       return { ...series, galleryImageUris: [...gallery, storedUri] };
@@ -152,16 +152,16 @@ export default function HomeScreen() {
     const series = seriesList.find((s) => s.id === id);
     if (!series) return;
     Alert.alert(
-      'XÃ¡c nháº­n xÃ³a',
-      `Báº¡n cÃ³ cháº¯c muá»‘n xÃ³a bá»™ truyá»‡n "${series.name}"? HÃ nh Ä‘á»™ng nÃ y khÃ´ng thá»ƒ hoÃ n tÃ¡c.`,
+      'Xác nhận xóa',
+      `Bạn có chắc muốn xóa bộ truyện "${series.name}"? Hành động này không thể hoàn tác.`,
       [
-        { text: 'Huá»·', style: 'cancel' },
+        { text: 'Huỷ', style: 'cancel' },
         {
-          text: 'XÃ³a',
+          text: 'Xóa',
           style: 'destructive',
           onPress: () => {
             setSeriesList((prev) => prev.filter((s) => s.id !== id));
-            addHistory('Deleted series', `XÃ³a bá»™ truyá»‡n "${series.name}"`, series);
+            addHistory('Deleted series', `Xóa bộ truyện "${series.name}"`, series);
             // if viewing deleted series, go back to main
             if (selectedId === id) {
               goToMainScreen();
@@ -177,7 +177,7 @@ export default function HomeScreen() {
     setSelectedId(null);
     setShowCreateModal(false);
     setShowFilterModal(false);
-    // Phá»¥c há»“i vá»‹ trÃ­ cuá»™n sau khi overlay chi tiáº¿t Ä‘Æ°á»£c thÃ¡o khá»i giao diá»‡n
+    // Phục hồi vị trí cuộn sau khi overlay chi tiết được tháo khỏi giao diện
     setTimeout(() => {
       gridScrollRef.current?.scrollTo({ y: scrollOffsetRef.current, animated: false });
     }, 50);
@@ -402,11 +402,11 @@ export default function HomeScreen() {
     const tags = Array.from(new Set([...(formSelectedTagChips || []), ...newTags, ...extraGroupTags]));
 
     if (!name) {
-      Alert.alert('Thiáº¿u thÃ´ng tin', 'Vui lÃ²ng nháº­p tÃªn truyá»‡n.');
+      Alert.alert('Thiếu thông tin', 'Vui lòng nhập tên truyện.');
       return;
     }
     if (isNaN(total) || total <= 0) {
-      Alert.alert('Thiáº¿u thÃ´ng tin', 'Vui lÃ²ng nháº­p tá»•ng sá»‘ táº­p há»£p lá»‡.');
+      Alert.alert('Thiếu thông tin', 'Vui lòng nhập tổng số tập hợp lệ.');
       return;
     }
 
@@ -448,7 +448,7 @@ export default function HomeScreen() {
             tags: tags.length ? tags : series.tags ?? [],
             chapters: newChapters,
           } as MangaSeries;
-          addHistory('Edited series', `Chá»‰nh sá»­a bá»™ truyá»‡n "${name}"`, updated);
+          addHistory('Edited series', `Chỉnh sửa bộ truyện "${name}"`, updated);
           return updated;
         }),
       );
@@ -470,7 +470,7 @@ export default function HomeScreen() {
       };
 
       setSeriesList((prev) => [newSeries, ...prev]);
-      addHistory('Created series', `Táº¡o bá»™ truyá»‡n "${name}"`, newSeries);
+      addHistory('Created series', `Tạo bộ truyện "${name}"`, newSeries);
     }
 
     resetCreateForm();
@@ -487,7 +487,7 @@ export default function HomeScreen() {
     );
   };
 
-  // Má»Ÿ modal Ä‘iá»u chá»‰nh sá»‘ lÆ°á»£ng táº­p (thÆ°á»ng)
+  // Mở modal điều chỉnh số lượng tập (thường)
   const handleOpenQuantityModalForChapter = (chapterNumber: number) => {
     if (!selectedId || !selectedSeries) return;
     const chapter = selectedSeries.chapters.find((ch) => ch.number === chapterNumber);
@@ -499,7 +499,7 @@ export default function HomeScreen() {
     setShowQuantityModal(true);
   };
 
-  // Má»Ÿ modal Ä‘iá»u chá»‰nh sá»‘ lÆ°á»£ng táº­p Ä‘áº·c biá»‡t
+  // Mở modal điều chỉnh số lượng tập đặc biệt
   const handleOpenQuantityModalForSpecial = (specialChapterId: string) => {
     if (!selectedId || !selectedSeries) return;
     const chapter = (selectedSeries.specialChapters || []).find((ch) => ch.id === specialChapterId);
@@ -511,20 +511,20 @@ export default function HomeScreen() {
     setShowQuantityModal(true);
   };
 
-  // TiÃªu Ä‘á» modal: tÃªn bá»™ truyá»‡n + gáº¡ch ngang + "táº­p" + sá»‘ táº­p
+  // Tiêu đề modal: tên bộ truyện + gạch ngang + "tập" + số tập
   const getModalTitleText = () => {
     if (!selectedSeries) return '';
     let chapterIdentifier = '';
     if (quantityTargetType === 'regular' && quantityChapterNumber !== null) {
-      chapterIdentifier = `táº­p ${quantityChapterNumber}`;
+      chapterIdentifier = `tập ${quantityChapterNumber}`;
     } else if (quantityTargetType === 'special' && quantitySpecialId !== null) {
       const sp = (selectedSeries.specialChapters || []).find((c) => c.id === quantitySpecialId);
-      chapterIdentifier = `táº­p ${sp?.name || ''}`;
+      chapterIdentifier = `tập ${sp?.name || ''}`;
     }
     return `${selectedSeries.name} - ${chapterIdentifier}`;
   };
 
-  // XÃ¡c nháº­n thay Ä‘á»•i sá»‘ lÆ°á»£ng tá»« modal
+  // Xác nhận thay đổi số lượng từ modal
   const handleConfirmQuantityModal = () => {
     if (!selectedId || !selectedSeries) return;
     const newCount = Math.max(0, Math.min(99, quantityValue));
@@ -547,10 +547,10 @@ export default function HomeScreen() {
           };
         }),
       );
-      addHistory('Updated chapter quantity', `Äá»•i sá»‘ lÆ°á»£ng táº­p ${quantityChapterNumber} thÃ nh ${newCount}`, selectedSeries ?? undefined);
+      addHistory('Updated chapter quantity', `Đổi số lượng tập ${quantityChapterNumber} thành ${newCount}`, selectedSeries ?? undefined);
     } else if (quantityTargetType === 'special' && quantitySpecialId !== null) {
       const sp = (selectedSeries.specialChapters || []).find((c) => c.id === quantitySpecialId);
-      const spName = sp?.name || 'táº­p Ä‘áº·c biá»‡t';
+      const spName = sp?.name || 'tập đặc biệt';
       setSeriesList((prev) =>
         prev.map((series) => {
           if (series.id !== selectedId) return series;
@@ -568,7 +568,7 @@ export default function HomeScreen() {
           };
         }),
       );
-      addHistory('Updated special chapter quantity', `Äá»•i sá»‘ lÆ°á»£ng ${spName} thÃ nh ${newCount}`, selectedSeries ?? undefined);
+      addHistory('Updated special chapter quantity', `Đổi số lượng ${spName} thành ${newCount}`, selectedSeries ?? undefined);
     }
 
     setShowQuantityModal(false);
@@ -595,10 +595,10 @@ export default function HomeScreen() {
         };
       }),
     );
-    addHistory('Toggled chapter', `Äá»•i tráº¡ng thÃ¡i táº­p ${chapterNumber}`, selectedSeries ?? undefined);
+    addHistory('Toggled chapter', `Đổi trạng thái tập ${chapterNumber}`, selectedSeries ?? undefined);
   };
 
-  // Nháº¥n giá»¯ Ä‘á»ƒ thÃªm báº£n trÃ¹ng (tÄƒng sá»‘ lÆ°á»£ng báº£n Ä‘Ã£ cÃ³)
+  // Nhấn giữ để thêm bản trùng (tăng số lượng bản đã có)
   const handleIncrementChapter = (chapterNumber: number) => {
 
     if (!selectedId) return;
@@ -619,7 +619,7 @@ export default function HomeScreen() {
         };
       }),
     );
-    addHistory('Added duplicate chapter', `ThÃªm báº£n trÃ¹ng táº­p ${chapterNumber}`, selectedSeries ?? undefined);
+    addHistory('Added duplicate chapter', `Thêm bản trùng tập ${chapterNumber}`, selectedSeries ?? undefined);
   };
 
   const handleToggleSpecialChapter = (specialChapterId: string) => {
@@ -642,10 +642,10 @@ export default function HomeScreen() {
         };
       }),
     );
-    addHistory('Toggled special chapter', 'Äá»•i tráº¡ng thÃ¡i táº­p Ä‘áº·c biá»‡t', selectedSeries ?? undefined);
+    addHistory('Toggled special chapter', 'Đổi trạng thái tập đặc biệt', selectedSeries ?? undefined);
   };
 
-  // Nháº¥n giá»¯ Ä‘á»ƒ thÃªm báº£n trÃ¹ng cho táº­p Ä‘áº·c biá»‡t
+  // Nhấn giữ để thêm bản trùng cho tập đặc biệt
   const handleIncrementSpecialChapter = (specialChapterId: string) => {
     if (!selectedId) return;
     setSeriesList((prev) =>
@@ -665,7 +665,7 @@ export default function HomeScreen() {
         };
       }),
     );
-    addHistory('Added duplicate special chapter', 'ThÃªm báº£n trÃ¹ng táº­p Ä‘áº·c biá»‡t', selectedSeries ?? undefined);
+    addHistory('Added duplicate special chapter', 'Thêm bản trùng tập đặc biệt', selectedSeries ?? undefined);
   };
 
   const handleAddSpecialChapters = () => {
@@ -675,7 +675,7 @@ export default function HomeScreen() {
       .map((name) => name.trim())
       .filter(Boolean);
     if (names.length === 0) {
-      Alert.alert('Thiáº¿u thÃ´ng tin', 'Vui lÃ²ng nháº­p Ã­t nháº¥t má»™t tÃªn táº­p Ä‘áº·c biá»‡t.');
+      Alert.alert('Thiếu thông tin', 'Vui lòng nhập ít nhất một tên tập đặc biệt.');
       return;
     }
 
@@ -694,7 +694,7 @@ export default function HomeScreen() {
         return { ...series, specialChapters: [...(series.specialChapters || []), ...added] };
       }),
     );
-    addHistory('Added special chapters', `ThÃªm ${names.length} táº­p Ä‘áº·c biá»‡t`, selectedSeries ?? undefined);
+    addHistory('Added special chapters', `Thêm ${names.length} tập đặc biệt`, selectedSeries ?? undefined);
     setSpecialChapterNames('');
     setShowSpecialChapterModal(false);
   };
@@ -708,7 +708,7 @@ export default function HomeScreen() {
           : series,
       ),
     );
-    addHistory('Deleted special chapter', 'XÃ³a táº­p Ä‘áº·c biá»‡t', selectedSeries ?? undefined);
+    addHistory('Deleted special chapter', 'Xóa tập đặc biệt', selectedSeries ?? undefined);
   };
 
   const openDetail = (id: string) => {
@@ -726,9 +726,9 @@ export default function HomeScreen() {
       return (
         <View style={styles.emptyState}>
           <Ionicons name="search-outline" size={64} color="#cbd5e1" />
-          <Text style={styles.emptyTitle}>KhÃ´ng tÃ¬m tháº¥y káº¿t quáº£</Text>
+          <Text style={styles.emptyTitle}>Không tìm thấy kết quả</Text>
           <Text style={styles.emptySubtitle}>
-            KhÃ´ng cÃ³ bá»™ truyá»‡n hoáº·c táº­p nÃ o khá»›p vá»›i â€œ{searchQuery}â€
+            Không có bộ truyện hoặc tập nào khớp với “{searchQuery}”
           </Text>
         </View>
       );
@@ -741,7 +741,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}>
         {matchingSeries.length > 0 && (
           <>
-            <Text style={styles.searchSectionTitle}>Bá»™ truyá»‡n ({matchingSeries.length})</Text>
+            <Text style={styles.searchSectionTitle}>Bộ truyện ({matchingSeries.length})</Text>
             <View style={styles.searchSeriesGrid}>
               {matchingSeries.map((item) => {
                 const owned = getOwnedCount(item);
@@ -757,7 +757,7 @@ export default function HomeScreen() {
                       )}
                     </View>
                     <Text style={[styles.searchSeriesName, { fontSize: baseFontSize }]} numberOfLines={2}>{item.name}</Text>
-                    <Text style={styles.searchSeriesMeta}>{owned}/{total} táº­p</Text>
+                    <Text style={styles.searchSeriesMeta}>{owned}/{total} tập</Text>
                     <View
                       style={[
                         styles.seriesStatusBar,
@@ -775,7 +775,7 @@ export default function HomeScreen() {
 
         {matchingSpecialChapters.length > 0 && (
           <>
-            <Text style={styles.searchSectionTitle}>Táº­p Ä‘áº·c biá»‡t ({matchingSpecialChapters.length})</Text>
+            <Text style={styles.searchSectionTitle}>Tập đặc biệt ({matchingSpecialChapters.length})</Text>
             <View style={styles.searchChapterList}>
               {matchingSpecialChapters.map(({ series, chapter }) => (
                 <Pressable
@@ -808,7 +808,7 @@ export default function HomeScreen() {
           <Ionicons name="search" size={18} color="#94a3b8" />
           <TextInput
             style={styles.searchInput}
-            placeholder="TÃ¬m kiáº¿m tÃªn truyá»‡n, táº­p Ä‘áº·c biá»‡t..."
+            placeholder="Tìm kiếm tên truyện, tập đặc biệt..."
             placeholderTextColor="#94a3b8"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -851,9 +851,9 @@ export default function HomeScreen() {
       ) : filteredSeries.length === 0 ? (
         <View style={styles.emptyState}>
           <Ionicons name="book-outline" size={64} color="#cbd5e1" />
-          <Text style={styles.emptyTitle}>ChÆ°a cÃ³ bá»™ truyá»‡n nÃ o</Text>
+          <Text style={styles.emptyTitle}>Chưa có bộ truyện nào</Text>
           <Text style={styles.emptySubtitle}>
-            Nháº¥n â€œThÃªm má»›iâ€ Ä‘á»ƒ báº¯t Ä‘áº§u quáº£n lÃ½ truyá»‡n tranh
+            Nhấn “Thêm mới” để bắt đầu quản lý truyện tranh
           </Text>
         </View>
       ) : (
@@ -895,7 +895,7 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <Ionicons name="library-outline" size={28} color="#6366f1" />
         {screen === 'main' ? (
-          <Text style={styles.headerTitle}>Quáº£n lÃ½ Truyá»‡n Tranh</Text>
+          <Text style={styles.headerTitle}>Quản lý Truyện Tranh</Text>
         ) : (
           <Pressable
             style={styles.headerTitlePressable}
@@ -905,7 +905,7 @@ export default function HomeScreen() {
               }
             }}>
             <Text style={styles.headerTitleText} numberOfLines={1}>
-              {selectedSeries?.name ?? 'Chi tiáº¿t'}
+              {selectedSeries?.name ?? 'Chi tiết'}
             </Text>
           </Pressable>
         )}
@@ -920,7 +920,7 @@ export default function HomeScreen() {
         {saveError && (
           <View style={styles.errorIndicator}>
             <Ionicons name="alert-circle" size={16} color="#ef4444" style={{ marginRight: 4 }} />
-            <Text style={styles.errorText}>Lá»—i lÆ°u!</Text>
+            <Text style={styles.errorText}>Lỗi lưu!</Text>
           </View>
         )}
       </View>
@@ -952,7 +952,7 @@ export default function HomeScreen() {
         ) : null}
       </View>
 
-      {/* Modal táº¡o bá»™ truyá»‡n */}
+      {/* Modal tạo bộ truyện */}
       <Modal visible={showCreateModal} animationType="slide" transparent>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -961,7 +961,7 @@ export default function HomeScreen() {
         <View style={styles.modalOverlay}>
           <SafeAreaView edges={['bottom']} style={[styles.modalContent, styles.createModalContent]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{editingSeriesId ? 'Chá»‰nh sá»­a bá»™ truyá»‡n' : 'Táº¡o bá»™ truyá»‡n má»›i'}</Text>
+              <Text style={styles.modalTitle}>{editingSeriesId ? 'Chỉnh sửa bộ truyện' : 'Tạo bộ truyện mới'}</Text>
               <Pressable onPress={() => { setShowCreateModal(false); resetCreateForm(); }}>
                 <Ionicons name="close" size={26} color="#64748b" />
               </Pressable>
@@ -971,19 +971,19 @@ export default function HomeScreen() {
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={{ flexGrow: 1 }}>
-              <Text style={styles.label}>TÃªn truyá»‡n</Text>
+              <Text style={styles.label}>Tên truyện</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Nháº­p tÃªn truyá»‡n..."
+                placeholder="Nhập tên truyện..."
                 placeholderTextColor="#94a3b8"
                 value={formName}
                 onChangeText={setFormName}
               />
 
-              <Text style={styles.label}>Tá»•ng sá»‘ táº­p</Text>
+              <Text style={styles.label}>Tổng số tập</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Chá»‰ nháº­p sá»‘, vÃ­ dá»¥: 12"
+                placeholder="Chỉ nhập số, ví dụ: 12"
                 placeholderTextColor="#94a3b8"
                 value={formTotal}
                 onChangeText={(text) => setFormTotal(text.replace(/[^0-9]/g, ''))}
@@ -992,7 +992,7 @@ export default function HomeScreen() {
 
               {attributeGroups.length > 0 && (
                 <View style={styles.attributeGroupsSection}>
-                  <Text style={[styles.label, { marginTop: 12 }]}>NhÃ³m Ä‘áº·c Ä‘iá»ƒm</Text>
+                  <Text style={[styles.label, { marginTop: 12 }]}>Nhóm đặc điểm</Text>
                   {attributeGroups.map((group) => {
                     const isDropdownOpen = openGroupDropdownId === group.id;
                     const currentValue = formGroupValues[group.id] || '';
@@ -1003,7 +1003,7 @@ export default function HomeScreen() {
                         <View style={styles.groupInputRow}>
                           <TextInput
                             style={[styles.input, { flex: 1, marginBottom: 0 }]}
-                            placeholder={`Nháº­p ${group.name.toLowerCase()} (vd: ${group.tags[0] || 'má»›i'})...`}
+                            placeholder={`Nhập ${group.name.toLowerCase()} (vd: ${group.tags[0] || 'mới'})...`}
                             placeholderTextColor="#94a3b8"
                             value={currentValue}
                             onChangeText={(text) =>
@@ -1021,7 +1021,7 @@ export default function HomeScreen() {
                                 size={18}
                                 color="#4338ca"
                               />
-                              <Text style={styles.groupDropdownButtonText}>Chá»n nhanh</Text>
+                              <Text style={styles.groupDropdownButtonText}>Chọn nhanh</Text>
                             </Pressable>
                           )}
                         </View>
@@ -1064,7 +1064,7 @@ export default function HomeScreen() {
                 </View>
               )}
 
-              <Text style={styles.label}>Chá»n Tháº» (chá»n sáºµn hoáº·c thÃªm má»›i)</Text>
+              <Text style={styles.label}>Chọn Thẻ (chọn sẵn hoặc thêm mới)</Text>
               <View style={styles.tagGrid}>
                 {allTags.map((tag) => {
                   const selected = formSelectedTagChips.includes(tag);
@@ -1082,10 +1082,10 @@ export default function HomeScreen() {
                   );
                 })}
               </View>
-              <Text style={styles.label}>ThÃªm tag má»›i (cÃ¡ch nhau báº±ng dáº¥u pháº©y)</Text>
+              <Text style={styles.label}>Thêm tag mới (cách nhau bằng dấu phẩy)</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Nháº­p tag má»›i..."
+                placeholder="Nhập tag mới..."
                 placeholderTextColor="#94a3b8"
                 value={formNewTags}
                 onChangeText={setFormNewTags}
@@ -1094,7 +1094,7 @@ export default function HomeScreen() {
               {previewChapters.length > 0 && (
                 <View style={styles.previewSection}>
                   <Text style={styles.previewTitle}>
-                    Xem trÆ°á»›c {previewChapters.length} táº­p Â· Nháº¥n Ä‘á»ƒ Ä‘á»•i tráº¡ng thÃ¡i
+                    Xem trước {previewChapters.length} tập · Nhấn để đổi trạng thái
                   </Text>
                   <View style={styles.previewGrid}>
                     {previewChapters.map((ch) => (
@@ -1110,7 +1110,7 @@ export default function HomeScreen() {
 
               <Pressable style={styles.saveButton} onPress={handleSaveSeries}>
                 <Ionicons name="save-outline" size={22} color="#fff" />
-                <Text style={styles.saveButtonText}>LÆ°u bá»™ truyá»‡n</Text>
+                <Text style={styles.saveButtonText}>Lưu bộ truyện</Text>
               </Pressable>
             </ScrollView>
           </SafeAreaView>
@@ -1119,14 +1119,14 @@ export default function HomeScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* Modal lá»c */}
+      {/* Modal lọc */}
       <Modal visible={showFilterModal} animationType="slide" transparent={false}>
         <SafeAreaView style={styles.fullscreenModal}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Bá»™ lá»c</Text>
+            <Text style={styles.modalTitle}>Bộ lọc</Text>
             <Pressable
               onPress={() => setShowFilterModal(false)}
-              accessibilityLabel="ÄÃ³ng bá»™ lá»c"
+              accessibilityLabel="Đóng bộ lọc"
               style={{ minWidth: 48, minHeight: 48, padding: 10, alignItems: 'center', justifyContent: 'center' }}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               <Ionicons name="close" size={28} color="#64748b" />
@@ -1144,7 +1144,7 @@ export default function HomeScreen() {
                 onPress={() => setShowMissingPanel((s) => !s)}>
                 <Text
                   style={[styles.filterOptionText, showMissingPanel && styles.filterOptionTextActive]}>
-                  CÃ²n thiáº¿u
+                  Còn thiếu
                 </Text>
               </Pressable>
 
@@ -1162,7 +1162,7 @@ export default function HomeScreen() {
 
               <Pressable
                 style={[styles.filterOption, { width: 44, paddingHorizontal: 0, alignItems: 'center', justifyContent: 'center' }]}
-                accessibilityLabel="Äáº·t láº¡i bá»™ lá»c"
+                accessibilityLabel="Đặt lại bộ lọc"
                 onPress={() => {
                   setSelectedFilterTags([]);
                   setTagFilter('all');
@@ -1181,7 +1181,7 @@ export default function HomeScreen() {
                 const hasSelected = selectedCount > 0;
 
                 if (!isExpanded) {
-                  // Collapsed state: Button [TÃªn nhÃ³m +]
+                  // Collapsed state: Button [Tên nhóm +]
                   return (
                     <Pressable
                       key={group.id}
@@ -1221,7 +1221,7 @@ export default function HomeScreen() {
                               setExpandedGroupIds((prev) => prev.filter((id) => id !== group.id))
                             }>
                             <Ionicons name="chevron-up-outline" size={14} color="#0284c7" />
-                            <Text style={styles.filterGroupCollapseText}>Thu gá»n</Text>
+                            <Text style={styles.filterGroupCollapseText}>Thu gọn</Text>
                           </Pressable>
                           <Pressable
                             style={styles.filterGroupClearBtn}
@@ -1232,14 +1232,14 @@ export default function HomeScreen() {
                               setExpandedGroupIds((prev) => prev.filter((id) => id !== group.id));
                             }}>
                             <Ionicons name="trash-outline" size={14} color="#ef4444" />
-                            <Text style={styles.filterGroupClearText}>XÃ³a</Text>
+                            <Text style={styles.filterGroupClearText}>Xóa</Text>
                           </Pressable>
                         </View>
                       </View>
 
                       <View style={styles.tagGrid}>
                         {group.tags.length === 0 && (
-                          <Text style={styles.filterOptionText}>ChÆ°a cÃ³ tag trong nhÃ³m nÃ y</Text>
+                          <Text style={styles.filterOptionText}>Chưa có tag trong nhóm này</Text>
                         )}
                         {group.tags.map((tag) => {
                           const selected = selectedFilterTags.includes(tag);
@@ -1275,7 +1275,7 @@ export default function HomeScreen() {
 
               return (
                 <View style={{ marginTop: 12 }}>
-                  <Text style={styles.ungroupedTagsTitle}>Tháº» khÃ¡c</Text>
+                  <Text style={styles.ungroupedTagsTitle}>Thẻ khác</Text>
                   <View style={styles.tagGrid}>
                     {ungroupedTags.map((tag) => {
                       const selected = selectedFilterTags.includes(tag);
@@ -1352,7 +1352,7 @@ export default function HomeScreen() {
                         </View>
                       );
                     });
-                    if (rows.length === 0) return <Text style={styles.emptySubtitle}>KhÃ´ng cÃ³ bá»™ truyá»‡n thiáº¿u theo bá»™ lá»c</Text>;
+                    if (rows.length === 0) return <Text style={styles.emptySubtitle}>Không có bộ truyện thiếu theo bộ lọc</Text>;
                     return rows;
                   })()}
                 </View>
@@ -1390,7 +1390,7 @@ export default function HomeScreen() {
                         </View>
                       );
                     });
-                    if (rows.length === 0) return <Text style={styles.emptySubtitle}>KhÃ´ng cÃ³ chÆ°Æ¡ng theo bá»™ lá»c</Text>;
+                    if (rows.length === 0) return <Text style={styles.emptySubtitle}>Không có chương theo bộ lọc</Text>;
                     return rows;
                   })()}
                 </View>
@@ -1411,7 +1411,7 @@ export default function HomeScreen() {
             <View style={styles.modalOverlay}>
               <View style={styles.modalContent}>
                 <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>ThÃªm táº­p Ä‘áº·c biá»‡t</Text>
+                  <Text style={styles.modalTitle}>Thêm tập đặc biệt</Text>
                   <Pressable onPress={() => { setShowSpecialChapterModal(false); setSpecialChapterNames(''); }}>
                     <Ionicons name="close" size={26} color="#64748b" />
                   </Pressable>
@@ -1421,10 +1421,10 @@ export default function HomeScreen() {
                   showsVerticalScrollIndicator={false}
                   keyboardShouldPersistTaps="handled"
                   contentContainerStyle={{ flexGrow: 1 }}>
-                  <Text style={styles.label}>TÃªn táº­p</Text>
+                  <Text style={styles.label}>Tên tập</Text>
                   <TextInput
                     style={[styles.input, styles.multilineInput]}
-                    placeholder={'Má»—i dÃ²ng má»™t táº­p, vÃ­ dá»¥:\nNgoáº¡i truyá»‡n 1\nTá»« Ä‘iá»ƒn Pokemon\nDoremon movie'}
+                    placeholder={'Mỗi dòng một tập, ví dụ:\nNgoại truyện 1\nTừ điển Pokemon\nDoremon movie'}
                     placeholderTextColor="#94a3b8"
                     value={specialChapterNames}
                     onChangeText={setSpecialChapterNames}
@@ -1433,7 +1433,7 @@ export default function HomeScreen() {
                   />
                   <Pressable style={styles.saveButton} onPress={handleAddSpecialChapters}>
                     <Ionicons name="add-circle-outline" size={22} color="#fff" />
-                    <Text style={styles.saveButtonText}>ThÃªm táº­p</Text>
+                    <Text style={styles.saveButtonText}>Thêm tập</Text>
                   </Pressable>
                 </ScrollView>
               </View>
@@ -1442,12 +1442,12 @@ export default function HomeScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* Modal áº£nh */}
+      {/* Modal ảnh */}
       <Modal visible={showGalleryModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>áº¢nh bá»™ truyá»‡n</Text>
+              <Text style={styles.modalTitle}>Ảnh bộ truyện</Text>
               <Pressable onPress={() => setShowGalleryModal(false)}>
                 <Ionicons name="close" size={26} color="#64748b" />
               </Pressable>
@@ -1458,26 +1458,26 @@ export default function HomeScreen() {
             ) : (
               <View style={styles.emptyImagePreview}>
                 <Ionicons name="image-outline" size={48} color="#cbd5e1" />
-                <Text style={styles.emptySubtitle}>ChÆ°a cÃ³ áº£nh</Text>
+                <Text style={styles.emptySubtitle}>Chưa có ảnh</Text>
               </View>
             )}
 
-            <Text style={styles.label}>áº¢nh chÃ­nh (tá»‘i Ä‘a 1)</Text>
+            <Text style={styles.label}>Ảnh chính (tối đa 1)</Text>
             <View style={styles.imageActionsRow}>
               <Pressable style={styles.imageActionButton} onPress={() => pickSeriesImage('cover')}>
                 <Ionicons name="image-outline" size={18} color="#fff" />
-                <Text style={styles.imageActionText}>{selectedSeries?.coverImageUri ? 'Thay áº£nh' : 'ThÃªm áº£nh'}</Text>
+                <Text style={styles.imageActionText}>{selectedSeries?.coverImageUri ? 'Thay ảnh' : 'Thêm ảnh'}</Text>
               </Pressable>
               {selectedSeries?.coverImageUri && (
                 <Pressable style={styles.imageRemoveButton} onPress={() => removeSeriesImage('cover')}>
                   <Ionicons name="trash-outline" size={18} color="#fff" />
-                  <Text style={styles.imageRemoveText}>XÃ³a</Text>
+                  <Text style={styles.imageRemoveText}>Xóa</Text>
                 </Pressable>
               )}
             </View>
 
             <View style={styles.galleryTitleRow}>
-              <Text style={styles.label}>áº¢nh phá»¥ ({selectedSeries?.galleryImageUris?.length || 0}/4)</Text>
+              <Text style={styles.label}>Ảnh phụ ({selectedSeries?.galleryImageUris?.length || 0}/4)</Text>
               <Pressable
                 style={[
                   styles.imageActionButton,
@@ -1486,7 +1486,7 @@ export default function HomeScreen() {
                 disabled={(selectedSeries?.galleryImageUris?.length || 0) >= 4}
                 onPress={() => pickSeriesImage('gallery')}>
                 <Ionicons name="add" size={18} color="#fff" />
-                <Text style={styles.imageActionText}>ThÃªm áº£nh phá»¥</Text>
+                <Text style={styles.imageActionText}>Thêm ảnh phụ</Text>
               </Pressable>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.galleryRow}>
@@ -1499,14 +1499,14 @@ export default function HomeScreen() {
                 </Pressable>
               ))}
             </ScrollView>
-            <Text style={styles.backupHint}>áº¢nh Ä‘Æ°á»£c lÆ°u cá»¥c bá»™ trÃªn thiáº¿t bá»‹ vÃ  khÃ´ng gá»­i lÃªn Google Sheets.</Text>
+            <Text style={styles.backupHint}>Ảnh được lưu cục bộ trên thiết bị và không gửi lên Google Sheets.</Text>
           </View>
         </View>
       </Modal>
 
 
 
-      {/* Modal chá»‰nh tags cho táº­p */}
+      {/* Modal chỉnh tags cho tập */}
       <Modal visible={showEditChapterModal} animationType="slide" transparent>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -1515,7 +1515,7 @@ export default function HomeScreen() {
             <View style={styles.modalOverlay}>
               <View style={styles.modalContent}>
                 <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>Chá»‰nh tags táº­p {editingChapter?.number}</Text>
+                  <Text style={styles.modalTitle}>Chỉnh tags tập {editingChapter?.number}</Text>
                   <Pressable onPress={() => setShowEditChapterModal(false)}>
                     <Ionicons name="close" size={26} color="#64748b" />
                   </Pressable>
@@ -1525,10 +1525,10 @@ export default function HomeScreen() {
                   showsVerticalScrollIndicator={false}
                   keyboardShouldPersistTaps="handled"
                   contentContainerStyle={{ flexGrow: 1 }}>
-                  <Text style={styles.label}>Tags (cÃ¡ch nhau báº±ng dáº¥u pháº©y)</Text>
+                  <Text style={styles.label}>Tags (cách nhau bằng dấu phẩy)</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="VÃ­ dá»¥: Fanmade, Translated..."
+                    placeholder="Ví dụ: Fanmade, Translated..."
                     placeholderTextColor="#94a3b8"
                     value={editingChapterTags}
                     onChangeText={setEditingChapterTags}
@@ -1552,13 +1552,13 @@ export default function HomeScreen() {
                           };
                         }),
                       );
-                      addHistory('Edited chapter tags', `Chá»‰nh tags táº­p ${editingChapter.number}`, selectedSeries ?? undefined);
+                      addHistory('Edited chapter tags', `Chỉnh tags tập ${editingChapter.number}`, selectedSeries ?? undefined);
                       setShowEditChapterModal(false);
                       setEditingChapter(null);
                       setEditingChapterTags('');
                     }}>
                     <Ionicons name="save-outline" size={22} color="#fff" />
-                    <Text style={styles.saveButtonText}>LÆ°u tags</Text>
+                    <Text style={styles.saveButtonText}>Lưu tags</Text>
                   </Pressable>
                 </ScrollView>
               </View>
@@ -1567,7 +1567,7 @@ export default function HomeScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* Modal Ä‘iá»u chá»‰nh sá»‘ lÆ°á»£ng táº­p */}
+      {/* Modal điều chỉnh số lượng tập */}
       <Modal visible={showQuantityModal} animationType="slide" transparent onRequestClose={() => setShowQuantityModal(false)}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -1579,12 +1579,12 @@ export default function HomeScreen() {
                   showsVerticalScrollIndicator={false}
                   keyboardShouldPersistTaps="handled"
                   contentContainerStyle={{ flexGrow: 1 }}>
-                  {/* DÃ²ng 1: TÃªn bá»™ truyá»‡n + gáº¡ch ngang + "táº­p" + sá»‘ táº­p */}
+                  {/* Dòng 1: Tên bộ truyện + gạch ngang + "tập" + số tập */}
                   <View style={styles.quantityModalHeader}>
                     <Text style={styles.quantityModalTitle}>{getModalTitleText()}</Text>
                   </View>
 
-                  {/* DÃ²ng 2: Ã” hiá»ƒn thá»‹ sá»‘ lÆ°á»£ng táº­p á»Ÿ giá»¯a, bÃªn trÃ¡i lÃ  dáº¥u trá»«, bÃªn pháº£i lÃ  dáº¥u cá»™ng (0-99) */}
+                  {/* Dòng 2: Ô hiển thị số lượng tập ở giữa, bên trái là dấu trừ, bên phải là dấu cộng (0-99) */}
                   <View style={styles.quantityControlRow}>
                     <Pressable
                       style={[styles.quantityStepBtn, quantityValue <= 0 && styles.quantityStepBtnDisabled]}
@@ -1620,13 +1620,13 @@ export default function HomeScreen() {
                     </Pressable>
                   </View>
 
-                  {/* DÃ²ng 3: Há»§y vÃ  XÃ¡c nháº­n */}
+                  {/* Dòng 3: Hủy và Xác nhận */}
                   <View style={styles.quantityActionRow}>
                     <Pressable style={styles.quantityCancelBtn} onPress={() => setShowQuantityModal(false)}>
-                      <Text style={styles.quantityCancelBtnText}>Há»§y</Text>
+                      <Text style={styles.quantityCancelBtnText}>Hủy</Text>
                     </Pressable>
                     <Pressable style={styles.quantityConfirmBtn} onPress={handleConfirmQuantityModal}>
-                      <Text style={styles.quantityConfirmBtnText}>XÃ¡c nháº­n</Text>
+                      <Text style={styles.quantityConfirmBtnText}>Xác nhận</Text>
                     </Pressable>
                   </View>
                 </ScrollView>
