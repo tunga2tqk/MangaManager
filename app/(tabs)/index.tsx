@@ -1,32 +1,19 @@
-import type { AttributeGroup, Chapter, ChapterStatus, MangaSeries } from '@/types';
-import { useAppData } from '@/contexts/AppDataContext';
-import MangaDetailModal, { ChapterCell, STATUS_COLORS, type ChapterFilter } from '@/components/MangaDetailModal';
 import MangaCard, { getOwnedCount, getSeriesStatus, getTrackedCount } from '@/components/MangaCard';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+import MangaDetailModal, { ChapterCell, STATUS_COLORS, type ChapterFilter } from '@/components/MangaDetailModal';
+import {
+  CELL_SIZE,
+  GRID_GAP,
+  GRID_PADDING,
+  SERIES_COVER_MAX_SIZE,
+  SERIES_COVER_SIZE,
+  getCellWidth,
+  getFontSizeForLevel,
+  getGridColumns,
+  getInfoLevel,
+} from '@/constants/layout';
+import { useAppData } from '@/contexts/AppDataContext';
+import type { AttributeGroup, Chapter, ChapterStatus, MangaSeries } from '@/types';
+import { filterChaptersByTags, tagsMatch } from '@/utils/tags';
 import { Ionicons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as ImagePicker from 'expo-image-picker';
@@ -35,7 +22,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   BackHandler,
-  Dimensions,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -53,55 +39,6 @@ import type { ScrollViewInstance } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Screen = 'main' | 'detail';
-type StatusFilter = 'all' | 'collecting' | 'completed' | 'none';
-
-
-const GRID_COLUMNS = 3;
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const GRID_GAP = 10;
-const GRID_PADDING = 16;
-const CELL_SIZE =
-  Math.floor((SCREEN_WIDTH - GRID_PADDING * 2 - GRID_GAP * (GRID_COLUMNS - 1)) / GRID_COLUMNS);
-const CHAPTER_CELL_SIZE = CELL_SIZE / 2;
-// Kích thước tối thiểu của ô tập truyện để luôn hiển thị được 2 chữ số
-const MIN_CHAPTER_CELL_SIZE = 26;
-// Kích thước ảnh bìa bộ truyện = 1.5 lần logo ứng dụng điện thoại (48dp)
-const APP_ICON_SIZE = 48;
-const SERIES_COVER_SIZE = APP_ICON_SIZE * 1.5; // 72dp
-// Giới hạn kích thước ảnh bìa tối đa để luôn nằm gọn trong ô lưới
-// (ô có width CELL_SIZE, padding 10*2 và border 1*2)
-const SERIES_COVER_MAX_SIZE = Math.max(32, CELL_SIZE - 22);
-const CHAPTER_GRID_COLUMNS = Math.max(
-  4,
-  Math.floor((SCREEN_WIDTH - GRID_PADDING * 2 + GRID_GAP) / (CHAPTER_CELL_SIZE + GRID_GAP)),
-);
-
-// Số cột hiển thị trên lưới tùy theo mức kích thước icon (1-10)
-function getGridColumns(level: number): number {
-  if (level <= 2) return 5;
-  if (level === 3) return 4;
-  if (level <= 6) return 3;
-  return 2;
-}
-
-// Mức hiển thị thông tin trên thẻ truyện
-function getInfoLevel(level: number): 'minimal' | 'medium' | 'full' {
-  if (level <= 3) return 'minimal';
-  if (level <= 6) return 'medium';
-  return 'full';
-}
-
-// Cỡ chữ tên bộ truyện theo level 1-10 (Level 1 giảm xuống 1/2 ~ 6px, chia đều lại từ level 1 đến 10)
-function getSeriesNameFontSize(level: number): number {
-  const clamped = Math.min(10, Math.max(1, level));
-  return Math.round(6 + (clamped - 1) * 1.11);
-}
-
-// Cỡ chữ số tập truyện theo level 1-10 (Level 1 giảm xuống 1/2 ~ 6px, chia đều lại từ level 1 đến 10)
-function getChapterNumberFontSize(level: number): number {
-  const clamped = Math.min(10, Math.max(1, level));
-  return Math.round(6 + (clamped - 1) * 1.11);
-}
 
 export default function HomeScreen() {
   const navigation = useNavigation();
@@ -144,7 +81,6 @@ export default function HomeScreen() {
   const [editingChapterTags, setEditingChapterTags] = useState('');
   const [showSpecialChapterModal, setShowSpecialChapterModal] = useState(false);
   const [specialChapterNames, setSpecialChapterNames] = useState('');
-  const [showImageModal, setShowImageModal] = useState(false);
   const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [showQuantityModal, setShowQuantityModal] = useState(false);
@@ -161,17 +97,13 @@ export default function HomeScreen() {
   // sizeMultiplier = 5 là kích thước mặc định (100%)
   const sizeScale = sizeMultiplier / 5;
   const dynamicSeriesCoverSize = Math.min(SERIES_COVER_SIZE * sizeScale, SERIES_COVER_MAX_SIZE);
-  const dynamicChapterCellSize = Math.max(MIN_CHAPTER_CELL_SIZE, CHAPTER_CELL_SIZE * sizeScale);
-  const gridColumns = getGridColumns(sizeMultiplier);
-  const cardWidth = Math.floor((SCREEN_WIDTH - GRID_PADDING * 2 - GRID_GAP * (gridColumns - 1)) / gridColumns);
+  const cardWidth = getCellWidth(getGridColumns(sizeMultiplier));
   const cardPadding = Math.max(6, Math.round(cardWidth * 0.1));
   const seriesCoverSize = Math.max(24, cardWidth - cardPadding * 2 - 2);
   const infoLevel = getInfoLevel(sizeMultiplier);
-  const baseFontSize = getSeriesNameFontSize(sizeMultiplier);
+  const baseFontSize = getFontSizeForLevel(sizeMultiplier);
   const nameFontSize = baseFontSize + 5;
-  const chapterFontSize = getChapterNumberFontSize(sizeMultiplier);
-
-
+  const chapterFontSize = baseFontSize;
 
   const copyImageToAppStorage = async (uri: string) => {
     const extension = uri.split('.').pop()?.split('?')[0] || 'jpg';
